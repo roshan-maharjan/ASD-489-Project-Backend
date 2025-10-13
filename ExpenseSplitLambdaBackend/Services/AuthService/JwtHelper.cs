@@ -8,8 +8,8 @@ namespace ExpenseSplitLambdaBackend.Services.AuthService
     public static class JwtHelper
     {
         // WARNING: Get this secret from a secure source like AWS Secrets Manager
-        private const string JWT_SECRET = "";
-        private const string JWT_ISSUER = "";
+        private const string JWT_SECRET = "8Xj7p2wFkZt1yM5GvHc9bRsD4qN6pLzW";
+        private const string JWT_ISSUER = "ExpenseSplitAPI";
 
         public static string GenerateToken(string email, string userId)
         {

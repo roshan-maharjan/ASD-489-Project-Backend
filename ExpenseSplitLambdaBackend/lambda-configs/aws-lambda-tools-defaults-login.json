@@ -6,6 +6,6 @@
   "function-runtime": "dotnet8",
   "function-memory-size": 512,
   "function-timeout": 30,
-  "function-handler": "ExpenseSplitLambdaBackend::Services.AuthService.LoginLambda::FunctionHandler",
+  "function-handler": "ExpenseSplitLambdaBackend::ExpenseSplitLambdaBackend.Services.AuthService.LoginLambda::LoginHandler",
   "project": "ExpenseSplitLambdaBackend.csproj"
 }
