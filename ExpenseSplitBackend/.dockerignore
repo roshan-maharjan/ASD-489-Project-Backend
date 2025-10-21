@@ -1,0 +1,3 @@
+# Exclude bin and obj directories, which are build artifacts
+**/bin/
+**/obj/

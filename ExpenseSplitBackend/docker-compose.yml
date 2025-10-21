@@ -1,0 +1,48 @@
+﻿version: '3.8'
+
+services:
+  # The ASP.NET Core API service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: expensesplit-api
+    ports:
+      - "5238:8080" # Map host port 8000 to container port 8080
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://*:8080 
+      # Override the connection string to use the Docker DNS name 'mysql-db'
+      - ConnectionStrings__DefaultConnection=server=mysql-db;port=3306;database=expensesplit_db;user=roshan;password=Roshan
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - expensesplit-network
+
+  # The MySQL database service
+  mysql-db:
+    image: mysql:8.0
+    container_name: expensesplit-mysql
+    ports:
+      - "3306:3306" # Expose MySQL to the host machine (for debugging/migrations)
+    environment:
+      - MYSQL_ROOT_PASSWORD=roshan
+      - MYSQL_DATABASE=expensesplit_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - expensesplit-network
+    # Healthcheck to ensure API doesn't start before DB is ready
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmysecretpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  expensesplit-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
