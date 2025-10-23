@@ -8,12 +8,19 @@ services:
       dockerfile: Dockerfile
     container_name: expensesplit-api
     ports:
-      - "5238:8080" # Map host port 8000 to container port 8080
+      - "80:8080" # Map host port 80 to container port 8080
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://*:8080 
+      - ASPNETCORE_URLS=http://*:8080
       # Override the connection string to use the Docker DNS name 'mysql-db'
       - ConnectionStrings__DefaultConnection=server=mysql-db;port=3306;database=expensesplit_db;user=roshan;password=Roshan
+      - Jwt__Key=8Xj7p2wFkZt1yM5GvHc9bRsD4qN6pLzW
+      - Jwt__Issuer=ExpenseSplitBackend
+      - Jwt__Audience=ExpenseSplitUsers
+      - Jwt__ExpiryMinutes=60
+      - AWS__Region=us-east-1
+      - AWS__S3BucketName=expensesplit-roshan-s3
+      - AWS__SNSTopicArn=arn:aws:sns:us-east-1:664418991085:expensesplit-roshan-sns
     depends_on:
       mysql-db:
         condition: service_healthy

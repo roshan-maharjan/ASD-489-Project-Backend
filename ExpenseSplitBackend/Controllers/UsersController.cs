@@ -1,45 +1,43 @@
-﻿using ExpenseSplitBackend.Models;
+﻿using ExpenseSplitBackend.Data;
+using ExpenseSplitBackend.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace ExpenseSplitBackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
-    [Authorize] // Still requires a valid JWT
-    public class UsersController : ControllerBase
+    [Route("api/[controller]")]
+    public class UserController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public UsersController(UserManager<ApplicationUser> userManager)
+        public UserController(ApplicationDbContext context)
         {
-            _userManager = userManager;
+            _context = context;
         }
 
-        [HttpGet("me")]
-        public async Task<ActionResult<UserProfileDto>> GetMyProfile()
+        // Searches for users by name or email
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsers([FromQuery] string query)
         {
-            // UserManager can find the user directly from the HttpContext.User principal
-            var user = await _userManager.GetUserAsync(User);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+            if (string.IsNullOrWhiteSpace(query))
+                return Ok(new List<UserProfile>());
 
-            // Map to DTO
-            var userProfile = new UserProfileDto
-            {
-                Id = user.Id,
-                Email = user.Email,
-                CreatedAt = user.LockoutEnd?.DateTime ?? DateTime.MinValue // Just an example, Identity stores different date props
-                // Note: IdentityUser doesn't have a 'CreatedAt'. 
-                // You could use 'LockoutEnd' or add a custom 'CreatedAt' prop to ApplicationUser
-            };
+            var users = await _context.Users
+                .Where(u => u.Id != userId &&
+                            (u.Email.Contains(query) ||
+                             u.FirstName.Contains(query) ||
+                             u.LastName.Contains(query)))
+                .Select(u => new UserProfile(u.Id, u.FirstName, u.LastName, u.Email, null))
+                .Take(10) // Limit results
+                .ToListAsync();
 
-            return Ok(userProfile);
+            return Ok(users);
         }
     }
 }

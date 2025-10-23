@@ -4,22 +4,38 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseSplitBackend.Data
 {
-    // Inherit from IdentityDbContext, specifying your ApplicationUser
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
+        public DbSet<Expense> Expenses { get; set; }
+        public DbSet<Debt> Debts { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-        }
+            base.OnModelCreating(builder);
 
-        // The DbSets for Users, Roles, etc. are all managed by the base IdentityDbContext
-        // You no longer need: public DbSet<User> Users { get; set; }
+            builder.Entity<Friendship>()
+                .HasKey(f => new { f.UserId, f.FriendId });
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
+            builder.Entity<Friendship>()
+                .HasOne(f => f.User)
+                .WithMany()
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Identity handles its own schema, including unique emails.
-            // You no longer need the manual index creation.
+            builder.Entity<Friendship>()
+                .HasOne(f => f.Friend)
+                .WithMany()
+                .HasForeignKey(f => f.FriendId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Debt>()
+                .HasOne(d => d.Debtor)
+                .WithMany()
+                .HasForeignKey(d => d.DebtorId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

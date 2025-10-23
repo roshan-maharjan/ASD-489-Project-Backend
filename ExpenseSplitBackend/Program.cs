@@ -1,5 +1,8 @@
+using Amazon.S3;
+using Amazon.SimpleNotificationService;
 using ExpenseSplitBackend.Data;
 using ExpenseSplitBackend.Models;
+using ExpenseSplitBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +48,17 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// 4. Add AWS Services
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddAWSService<IAmazonSimpleNotificationService>();
+
+// 5. Add Custom Services
+builder.Services.AddScoped<ITokenService, TokenService>(); // You must create this
+builder.Services.AddScoped<IStorageService, StorageService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // 4. Add Controllers and API Explorer
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -75,6 +89,30 @@ builder.Services.AddSwaggerGen(c =>
             new string[] {}
         }
     });
+    //c.OperationFilter<SwaggerFileOperationFilter>();
+});
+
+// 7. Add CORS
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowBlazorApp",
+//        builder => builder
+//            .WithOrigins("http://localhost:5167") // Your Blazor app's URL
+//            .AllowAnyHeader()
+//            .AllowAnyMethod());
+//});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorApp",
+        builder => builder
+            .WithOrigins(
+                "http://localhost:5167",
+                "http://d1upr7dxrlxhot.cloudfront.net",
+                "https://d1upr7dxrlxhot.cloudfront.net"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod());
 });
 
 var app = builder.Build();
@@ -90,7 +128,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowBlazorApp");
 // 6. Add Authentication and Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
