@@ -32,17 +32,20 @@ services:
     image: mysql:8.0
     container_name: expensesplit-mysql
     ports:
-      - "3306:3306" # Expose MySQL to the host machine (for debugging/migrations)
+      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=roshan
       - MYSQL_DATABASE=expensesplit_db
+      - MYSQL_USER=roshan
+      - MYSQL_PASSWORD=Roshan
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
       - expensesplit-network
     # Healthcheck to ensure API doesn't start before DB is ready
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmysecretpassword"]
+      # Corrected: Use the correct root password 'roshan'
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proshan"]
       interval: 10s
       timeout: 5s
       retries: 5
