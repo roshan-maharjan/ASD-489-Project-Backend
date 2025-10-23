@@ -36,6 +36,8 @@ services:
     command:
       - --default-authentication-plugin=mysql_native_password
       - --skip-name-resolve
+      - --performance_schema=0
+      - --innodb_buffer_pool_size=64M
     environment:
       - MYSQL_ROOT_PASSWORD=roshan
       - MYSQL_DATABASE=expensesplit_db
