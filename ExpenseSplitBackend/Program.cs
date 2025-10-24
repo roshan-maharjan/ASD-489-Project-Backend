@@ -1,5 +1,4 @@
 using Amazon.S3;
-using Amazon.SimpleNotificationService;
 using ExpenseSplitBackend.Data;
 using ExpenseSplitBackend.Models;
 using ExpenseSplitBackend.Services;
@@ -51,13 +50,12 @@ builder.Services.AddAuthorization();
 // 4. Add AWS Services
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 builder.Services.AddAWSService<IAmazonS3>();
-builder.Services.AddAWSService<IAmazonSimpleNotificationService>();
 
 // 5. Add Custom Services
 builder.Services.AddScoped<ITokenService, TokenService>(); // You must create this
 builder.Services.AddScoped<IStorageService, StorageService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<DebtEmailService>();
 
 // 4. Add Controllers and API Explorer
 builder.Services.AddControllers();

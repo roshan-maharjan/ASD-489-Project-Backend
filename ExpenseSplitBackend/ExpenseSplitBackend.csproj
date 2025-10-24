@@ -10,7 +10,6 @@
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.7" />
     <PackageReference Include="AWSSDK.S3" Version="4.0.7.12" />
     <PackageReference Include="AWSSDK.SimpleEmail" Version="4.0.1.9" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.1.9" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />

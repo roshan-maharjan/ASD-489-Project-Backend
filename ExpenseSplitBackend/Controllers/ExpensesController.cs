@@ -17,13 +17,13 @@ namespace ExpenseSplitBackend.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly INotificationService _notificationService;
+        private readonly DebtEmailService _debtEmailService;
 
-        public ExpensesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, INotificationService notificationService)
+        public ExpensesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, DebtEmailService debtEmailService)
         {
             _context = context;
             _userManager = userManager;
-            _notificationService = notificationService;
+            _debtEmailService = debtEmailService;
         }
 
         [HttpGet]
@@ -69,7 +69,11 @@ namespace ExpenseSplitBackend.Controllers
             _context.Expenses.Add(expense);
             await _context.SaveChangesAsync();
 
-            await _notificationService.SendNewExpenseNotification(expense);
+            // Send email for each debt
+            foreach (var debt in expense.Debts)
+            {
+                await _debtEmailService.SendDebtEmailAsync(debt.Id, payerId);
+            }
 
             return Ok(MapToExpenseDto(expense));
         }
